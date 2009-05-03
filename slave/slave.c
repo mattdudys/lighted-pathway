@@ -8,7 +8,7 @@
 #include <util/delay.h>
 #include "patterns.h"
 #include "displayable.h"
-#include "command.h"
+#include "../master/command.h"
 #include <stdbool.h> 
 #include <avr/pgmspace.h>
 #include <inttypes.h>
@@ -37,7 +37,7 @@ uint8_t localBufferLength = 0xff;
 #define HEIGHT 16
 #define BOARDROWS 16
 #define BOARDCOLS 8
-#define ID 4 
+#define ID 1 
 #define ROW (ID-1) / 15
 #define COL (ID-1) % 15
 #define ROWOFFSET ROW * BOARDROWS
@@ -102,7 +102,7 @@ void init(void) {
 	initFont(&proggyFont, 12, &proggy);
 	listSize = 0;
 
-//	addImage(0, &ucmerced, 0, 0, 0, 32, -1, -192, true);
+	addImage(0, &ucmerced, 0, 0, 0, 32, -1, -192, true);
 }
 
 void clear(void) {
@@ -302,7 +302,7 @@ int main(void) {
 	frame = 0;
 
 	i2cInit();
-	i2cSetBitrate(100);
+	i2cSetBitrate(10);
 	i2cSetLocalDeviceAddr(LOCAL_ADDR, TRUE);
 	i2cSetSlaveReceiveHandler( i2cSlaveReceiveService );
 	i2cSetSlaveTransmitHandler( i2cSlaveTransmitService );
@@ -345,13 +345,16 @@ void i2cSlaveReceiveService(uint8_t receiveDataLength, uint8_t* receiveData)
 	case ADD_MESSAGE_CMD:
 		am = (add_message_cmd*) localBuffer;
 		addMessage(am->id, am->message, am->rStart, am->rStep, am->rStop, am->cStart, am->cStep, am->cStop, am->loop); 
+		draw();
 		break;
 	case DELETE_CMD:
 		removeDisplayable(((delete_cmd*) localBuffer)->id);
+		draw();
 		break;
 	case ADD_IMAGE_CMD:
 		ai = (add_image_cmd*) localBuffer;
 		addImage(ai->id, &ucmerced, ai->rStart, ai->rStep, ai->rStop, ai->cStart, ai->cStep, ai->cStop, ai->loop);
+		draw();
 		break;
 	case PONG_CMD:
 		p = (pong_cmd*) localBuffer;
