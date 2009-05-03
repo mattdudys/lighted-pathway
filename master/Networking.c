@@ -53,8 +53,8 @@ void commands(){
 	showByte(0x55);
 
 	//init i2c stuff
-//	i2cInit();
-//	i2cSetLocalDeviceAddr(LOCAL_ADDR, TRUE);
+	//	i2cInit();
+	//	i2cSetLocalDeviceAddr(LOCAL_ADDR, TRUE);
 	//wait a little while
 	_delay_ms(500);
 	showByte(0xAA);
@@ -62,19 +62,19 @@ void commands(){
 	while(1){
 		rprintf("Command-Rolando>");
 		//while(!c) uartReceiveByte(&c);
-		
+
 		localBufferLength = 0;
 		i=0;
 		uartReceiveByte(&c);
 		while(c != RETURN && localBufferLength<MAX_BUFFER_LENGTH){
-		if(uartReceiveByte(&c))
+			if(uartReceiveByte(&c))
 			{
-			uartSendByte(c);
-			localBuffer[localBufferLength] = c;
-			localBufferLength++;
+				uartSendByte(c);
+				localBuffer[localBufferLength] = c;
+				localBufferLength++;
 			}
 
-			
+
 		}
 		localBuffer[localBufferLength++]='\0';
 
@@ -143,158 +143,85 @@ void commands(){
 		rprintfCRLF();
 	}
 }
-add_image_cmd *
-build_image(char *bufToParse,unsigned int bufLength,add_image_cmd *ima){
-	ima->cmd_id = ADD_IMAGE_CMD;
-	int i;
-	//int args[9];
-	char *args[9];
-	args[0] = bufToParse;
-	u08 delimiter = bufToParse[1];
-	int count = 0;
-	int current = 1;
-
-	for(current = 1;current < bufLength - 1 && count < 9;current++){
-		if(bufToParse[current] == delimiter){
-			bufToParse[current] = 0;
-			//args[count++] = current +1;
-			args[count++] = bufToParse + current + 1;
-		}
-	}
-
-	ima->id =atoi(args[0]);rprintfStr(args[0]);
-	ima->imageID =atoi(args[1]);rprintfStr(args[1]);
-	ima->rStart =atoi(args[2]);rprintfStr(args[2]);
-	ima->rStep =atoi(args[3]);rprintfStr(args[3]);
-	ima->rStop =atoi(args[4]);rprintfStr(args[4]);
-	ima->cStart =atoi(args[5]);rprintfStr(args[5]);
-	ima->cStep =atoi(args[6]);rprintfStr(args[6]);
-	ima->cStop =atoi(args[7]);rprintfStr(args[7]);
-	//ima->loop =bufToParse[args[8]];rprintfStr("args[8]=%c\n",args[8]);
-	ima->loop = args[8];rprintfStr(args[8]);
-
-	rprintf("\n%c, %d, %d\n", ima->cmd_id, ima->id, ima->imageID);
-	rprintf("%d, %d, %d\n", ima->rStart, ima->rStep, ima->rStop);
-	rprintf("%d, %d, %d\n", ima->cStart, ima->cStep, ima->cStop);
-	rprintf("%d\n", ima->loop);
-
-	return ima;
-}
-
-add_message_cmd *
-build_message(char *bufToParse,unsigned int bufLength,add_message_cmd *a){
-	a->cmd_id = ADD_MESSAGE_CMD;
-	
-	int i;
-	int args[9];
-	u08 delimiter = bufToParse[1];
-	int count  = 0;
-	int current = 1;
-	size_t len;
-
-
-
-
-	for(current = 1;current < bufLength;current++){
-		if(bufToParse[current] == delimiter){
-			bufToParse[current] = 0;
-			args[count++] = current +1;
-		}
-	}
-
-	a->id = atoi(args[0]);
-	a->rStart= atoi(args[1]);
-	a->rStep = atoi(args[2]);
-	a->rStop = atoi(args[3]);
-	a->cStart = atoi(args[4]);
-	a->cStep = atoi(args[5]);
-	a->cStop = atoi(args[6]);
-	a->loop = bufToParse[args[7]];
-	//a->message = strcpy(args[8]);
-	len = strlen(&(bufToParse[args[8]]));
-	strncpy(&(a->message),&(bufToParse[args[8]]),len);
-	return a;
-
-}
 
 
 int main()
 {
 
-/////PONG
+	/////PONG
 
-		App->player1->posx = 3;
-		App->player1->posy = 5;
-		App->player1->vy = 0;
-		App->player1->vx = 0;
-		App->player1->size = 10;
-App->p2score = 0;
-		App->player2->posx = WIDTH-3;
-		App->player2->posy = 15;
-		App->player2->vy = 0;
-		App->player2->vx = 0;
-		App->player2->size = 10;
-App->p1score = 0;
-		App->puck->posx = 7;
-		App->puck->posy = 5;
-		App->puck->vy = 1;
-		App->puck->vx = 1;
-		App->puck->size = 5;
+	App->player1->posx = 3;
+	App->player1->posy = 5;
+	App->player1->vy = 0;
+	App->player1->vx = 0;
+	App->player1->size = 10;
+	App->p2score = 0;
+	App->player2->posx = WIDTH-3;
+	App->player2->posy = 15;
+	App->player2->vy = 0;
+	App->player2->vx = 0;
+	App->player2->size = 10;
+	App->p1score = 0;
+	App->puck->posx = 7;
+	App->puck->posy = 5;
+	App->puck->vy = 1;
+	App->puck->vx = 1;
+	App->puck->size = 5;
 
-/////
-
-
-
-	 uartInit();					// initialize UART (serial port)
-	 uartSetBaudRate(9600);		// set UART speed to 9600 baud
-	 rprintfInit(uartSendByte);  // configure rprintf to use UART for output
-
-	 DDRC = 0xff;
-	 PORTC = 0xff;
-
-
-//	 i2cInit();
-//	 i2cSetBitrate(400);
-//	 i2cSetLocalDeviceAddr(LOCAL_ADDR, TRUE);
+	/////
 
 
 
-	 int ans = 0;
-	 	i2cTest();
-/*	 while(1){
-		//	 rprintf("Hello World\r\n");	// send "hello world" message via serial port
-		char mb;
-		 if(uartReceiveByte( &mb ))
-		 {
-			rprintf("%c",mb);
-			uBuf[nB] = mb;
+	uartInit();					// initialize UART (serial port)
+	uartSetBaudRate(9600);		// set UART speed to 9600 baud
+	rprintfInit(uartSendByte);  // configure rprintf to use UART for output
 
-			if(mb== RETURN || nB>=MAXBUF)
-			{
-			//	rprintf("\n\r");
-			//	for(i=0;i<=nB;i++)
-			//		rprintf("%c",uBuf[i]);
-				
-				rprintf("starting i2c\n\r");
-				i2cTest();
-
-				rprintf("\n\r");
-				nB = 0;
-				if(strncmp(uBuf,"hello",5)==0)	rprintf("\n\r Hi Partner!!\n\r");
-				if(strncmp(uBuf,"lights",4)==0)	
-				{
-				rprintf("\n\r Lights\n\r");
-				PORTC = 0x00;
-				}
-				else
-				PORTC = 0xff;
-			}
-				else nB++;	
-			
-		 }
+	DDRC = 0xff;
+	PORTC = 0xff;
 
 
-		
+	//	 i2cInit();
+	//	 i2cSetBitrate(400);
+	//	 i2cSetLocalDeviceAddr(LOCAL_ADDR, TRUE);
+
+
+
+	int ans = 0;
+	i2cTest();
+	/*	 while(1){
+	//	 rprintf("Hello World\r\n");	// send "hello world" message via serial port
+	char mb;
+	if(uartReceiveByte( &mb ))
+	{
+	rprintf("%c",mb);
+	uBuf[nB] = mb;
+
+	if(mb== RETURN || nB>=MAXBUF)
+	{
+	//	rprintf("\n\r");
+	//	for(i=0;i<=nB;i++)
+	//		rprintf("%c",uBuf[i]);
+
+	rprintf("starting i2c\n\r");
+	i2cTest();
+
+	rprintf("\n\r");
+	nB = 0;
+	if(strncmp(uBuf,"hello",5)==0)	rprintf("\n\r Hi Partner!!\n\r");
+	if(strncmp(uBuf,"lights",4)==0)	
+	{
+	rprintf("\n\r Lights\n\r");
+	PORTC = 0x00;
+	}
+	else
+	PORTC = 0xff;
+	}
+	else nB++;	
+
+	}
+
+
+
 	}*/
 }
 
@@ -321,103 +248,103 @@ void i2cTest()
 	i2cSetSlaveTransmitHandler( i2cSlaveTransmitService );
 
 	_delay_ms(500);
-	
+
 	showByte(0xAA);
 
 	while(1)
 	{
 		rprintf("Command>");
 		while(!c) uartReceiveByte(&c);
-		
+
 		switch(c)
 		{
-		case 's':
-			rprintf("Send: ");
-			// get string from terminal
-			localBufferLength = 0;
-			c = 0;
-			while((c != 0x0D) && (localBufferLength < 0x20))
-			{
-				while(!uartReceiveByte(&c));
-				if (c == '\b')
-					localBufferLength-=2;
-				else
-					localBuffer[localBufferLength++] = c;
-				uartSendByte(c);
-			}
-			// switch CR to NULL to terminate string
-			localBuffer[localBufferLength-1] = 0;
-			// send string over I2C
-			rprintfCRLF();	rprintfCRLF();
-			rprintf("sending");
-			rprintfStr(localBuffer);
-			rprintf("\n\r");
-			i2cMasterSend(TARGET_ADDR, localBufferLength, localBuffer);
-			//i2cMasterSendNI(TARGET_ADDR, localBufferLength, localBuffer);
-			rprintfCRLF();
-			break;
-		case 'r':
-			rprintf("Receive: ");
-			// receive string over I2C
-			i2cMasterReceive(TARGET_ADDR, 0x10, localBuffer);
-			//i2cMasterReceiveNI(TARGET_ADDR, 0x10, localBuffer);
-			// format buffer
-			localBuffer[0x10] = 0;
-			rprintfStr(localBuffer);
-			rprintfCRLF();
-			break;
-
-		case 'i':
-commands();
-		break;
-		case 'f':
-			frame = 0;
-			rprintf("auto scroll");
-			rprintfCRLF();
-			while(1)
-			{
-
-				if(uartReceiveByte(&c))
+			case 's':
+				rprintf("Send: ");
+				// get string from terminal
+				localBufferLength = 0;
+				c = 0;
+				while((c != 0x0D) && (localBufferLength < 0x20))
 				{
-				rprintf("recieve");rprintfCRLF();
-					if(c == 'q')
-					{
-						rprintf("stop scrolling");
-						rprintfCRLF();
-						break;
-					}
+					while(!uartReceiveByte(&c));
+					if (c == '\b')
+						localBufferLength-=2;
+					else
+						localBuffer[localBufferLength++] = c;
+					uartSendByte(c);
 				}
-
-				_delay_ms(100);
-				frame++;
-				frame_cmd f;
-				f.cmd_id = FRAME_CMD;
-				f.frame = frame;
-				*((frame_cmd*) localBuffer) = f;
-			//	localBuffer[0] = 'f';
-			//	*((int32_t*)(localBuffer + 1))=frame;
-				
-				rprintf("about to send  ");
-				//i2cMasterSend(TARGET_ADDR, 5, localBuffer);
-				i2cMasterSendDiag(TARGET_ADDR, sizeof(f), localBuffer);
-				rprintf(" frame %d",frame);
+				// switch CR to NULL to terminate string
+				localBuffer[localBufferLength-1] = 0;
+				// send string over I2C
+				rprintfCRLF();	rprintfCRLF();
+				rprintf("sending");
+				rprintfStr(localBuffer);
+				rprintf("\n\r");
+				i2cMasterSend(TARGET_ADDR, localBufferLength, localBuffer);
+				//i2cMasterSendNI(TARGET_ADDR, localBufferLength, localBuffer);
 				rprintfCRLF();
-			//	break;
-			}
-			rprintf("done");
-			rprintfCRLF();
-			break;
-			case 'p':
-			 frm = 0;
-			 App->puck->posx=3;
-			 App->puck->posy=3;
-			 App->puck->vx=-1;
-			 App->player1->posy=5;
-			 App->player2->posy=5;
-			while(1){
+				break;
+			case 'r':
+				rprintf("Receive: ");
+				// receive string over I2C
+				i2cMasterReceive(TARGET_ADDR, 0x10, localBuffer);
+				//i2cMasterReceiveNI(TARGET_ADDR, 0x10, localBuffer);
+				// format buffer
+				localBuffer[0x10] = 0;
+				rprintfStr(localBuffer);
+				rprintfCRLF();
+				break;
+
+			case 'i':
+				commands();
+				break;
+			case 'f':
+				frame = 0;
+				rprintf("auto scroll");
+				rprintfCRLF();
+				while(1)
+				{
+
 					if(uartReceiveByte(&c))
 					{
-					rprintf("recieve %c",c);rprintfCRLF();
+						rprintf("recieve");rprintfCRLF();
+						if(c == 'q')
+						{
+							rprintf("stop scrolling");
+							rprintfCRLF();
+							break;
+						}
+					}
+
+					_delay_ms(100);
+					frame++;
+					frame_cmd f;
+					f.cmd_id = FRAME_CMD;
+					f.frame = frame;
+					*((frame_cmd*) localBuffer) = f;
+					//	localBuffer[0] = 'f';
+					//	*((int32_t*)(localBuffer + 1))=frame;
+
+					rprintf("about to send  ");
+					//i2cMasterSend(TARGET_ADDR, 5, localBuffer);
+					i2cMasterSendDiag(TARGET_ADDR, sizeof(f), localBuffer);
+					rprintf(" frame %d",frame);
+					rprintfCRLF();
+					//	break;
+				}
+				rprintf("done");
+				rprintfCRLF();
+				break;
+			case 'p':
+				frm = 0;
+				App->puck->posx=3;
+				App->puck->posy=3;
+				App->puck->vx=-1;
+				App->player1->posy=5;
+				App->player2->posy=5;
+				while(1){
+					if(uartReceiveByte(&c))
+					{
+						rprintf("recieve %c",c);rprintfCRLF();
 						if(c == 'q')
 						{
 							rprintf("stop pong");
@@ -429,7 +356,7 @@ commands();
 							App->player1->posy++;
 							if(App->player1->posy>=31)App->player1->posy=31;
 						}
-				    	else if(c=='s')
+						else if(c=='s')
 						{
 							App->player1->posy--;
 							if(App->player1->posy<0)App->player1->posy=0;
@@ -439,7 +366,7 @@ commands();
 							App->player2->posy++;
 							if(App->player2->posy>=31)App->player2->posy=31;
 						}
-					    else if(c=='k')
+						else if(c=='k')
 						{
 							App->player2->posy--;
 							if(App->player2->posy<0)App->player2->posy=0;
@@ -448,28 +375,28 @@ commands();
 					}
 
 
-frm++;
+					frm++;
 
 					updateScreen(App);
-				//send this stuff to master
-				pong_cmd png;
-				png.cmd_id = PONG_CMD;
-				png.paddle1_y = App->player1->posy;
-				png.paddle2_y = App->player2->posy;
+					//send this stuff to master
+					pong_cmd png;
+					png.cmd_id = PONG_CMD;
+					png.paddle1_y = App->player1->posy;
+					png.paddle2_y = App->player2->posy;
 
 
-				png.ball_x=App->puck->posx;
-				png.ball_y=App->puck->posy;
-				*((pong_cmd*) localBuffer) = png;
-				rprintf("pong frame %d: p1y %d p2y %d puckx %d pucky %d  \n",frm,App->player1->posy,App->player2->posy,App->puck->posx,App->puck->posy);
-				i2cMasterSend(TARGET_ADDR, sizeof(png), localBuffer);
+					png.ball_x=App->puck->posx;
+					png.ball_y=App->puck->posy;
+					*((pong_cmd*) localBuffer) = png;
+					rprintf("pong frame %d: p1y %d p2y %d puckx %d pucky %d  \n",frm,App->player1->posy,App->player2->posy,App->puck->posx,App->puck->posy);
+					i2cMasterSend(TARGET_ADDR, sizeof(png), localBuffer);
 
 					_delay_ms(100);
-			}
-			break;
-		default:
-			rprintf("Unknown Command!");
-			break;
+				}
+				break;
+			default:
+				rprintf("Unknown Command!");
+				break;
 		}
 		c = 0;
 		rprintfCRLF();
@@ -536,7 +463,7 @@ void i2cMasterSendDiag(u08 deviceAddr, u08 length, u08* data)
 	i2cSendByte( deviceAddr&0xFE );
 	i2cWaitForComplete();
 	rprintf("SLA+W-");
-	
+
 	// send data
 	while(length)
 	{
@@ -545,7 +472,7 @@ void i2cMasterSendDiag(u08 deviceAddr, u08 length, u08* data)
 		rprintf("DATA-");
 		length--;
 	}
-	
+
 	// transmit stop condition
 	// leave with TWEA on for slave receiving
 	i2cSendStop();
