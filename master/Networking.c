@@ -46,7 +46,7 @@ int i=0;
 char uBuf[MAXBUF];
 
 
-void commands(){
+void commands() {
 	u08 c = 0;
 	u08 delimiter=0;
 	u08 command=-1;
@@ -82,11 +82,9 @@ void commands(){
 		delimiter = localBuffer[1];
 		//process
 		frame_cmd f;
-		add_message_cmd *m;
-		add_message_cmd a;
-		add_image_cmd *im;
+		add_message_cmd msg;
 		add_image_cmd ima;
-		delete_cmd d;
+		id_cmd i;
 		rprintf("%s",localBuffer);
 		switch(command){
 			case FRAME_CMD:
@@ -120,23 +118,31 @@ void commands(){
 				break;
 
 			case ADD_MESSAGE_CMD:
-				//add_message_cmd m;
-				m = build_message(localBuffer,localBufferLength,&a);		
-				i2cMasterSend(TARGET_ADDR, sizeof(m), (u08 *)&m);
+				// add_message_cmd img 
+				build_message(localBuffer, localBufferLength, &msg);		
+				i2cMasterSend(TARGET_ADDR, sizeof(msg), (u08*) &msg);
 				break;
 			case ADD_IMAGE_CMD:
-				//add_image_cmd im;
-				im = build_image(localBuffer,localBufferLength,&ima);
-				i2cMasterSend(TARGET_ADDR, sizeof(im), (u08 *)&im);
+				// add_image_cmd msg;
+				build_image(localBuffer, localBufferLength, &img);
+				i2cMasterSend(TARGET_ADDR, sizeof(img), (u08*) &img);
 				break;
 			case DELETE_CMD:
-				//delete_cmd d;
-				d.cmd_id = DELETE_CMD;
-				d.id = atoi(localBuffer[2]);
-				i2cMasterSend(TARGET_ADDR,sizeof(d),(u08*)&d);
+				// id_cmd i
+				i.cmd_id = DELETE_CMD;
+				i.id = atoi(localBuffer[2]);
+				i2cMasterSend(TARGET_ADDR, sizeof(i), (u08*) &i);
 				break;
+			case ENABLE_CMD:
+				i.cmd_id = ENABLE_CMD;
+				i.id = atoi(localBuffer[2]);
+				i2cMasterSend(TARGET_ADDR, sizeof(i), (u08*) &i);
+			case DISABLE_CMD:
+				i.cmd_id = DISABLE_CMD;
+				i.id = atoi(localBuffer[2]);
+				i2cMasterSend(TARGET_ADDR, sizeof(i), (u08*) &i);
 			default:
-				rprintf("Unknown Command %c",command);
+				rprintf("Unknown Command %c", command);
 				break;
 		}
 		c = 0;

@@ -38,11 +38,13 @@ typedef struct {
 	uint8_t imageID;
 } add_image_cmd;
 
-#define DELETE_CMD 'd'
+#define DISABLE_CMD 'd'
+#define ENABLE_CMD 'e'
+#define DELETE_CMD 'x'
 typedef struct {
 	char cmd_id;
 	uint8_t id;
-} delete_cmd;
+} id_cmd;
 
 #define PONG_CMD 'p'
 typedef struct {
@@ -52,6 +54,7 @@ typedef struct {
 	uint8_t ball_x;
 	uint8_t ball_y;
 } pong_cmd;
+
 
 int split(char *bufToParse, unsigned int bufLength, char** argv, int maxArgs) {
 	// Don't try to parse commands that are too short.

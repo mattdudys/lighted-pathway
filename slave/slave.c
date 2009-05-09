@@ -47,6 +47,11 @@ uint8_t localBufferLength = 0xff;
 pattern_t asme;
 pattern_t proggy;
 pattern_t ucmerced;
+pattern_t soe;
+pattern_t ssha;
+pattern_t ns;
+pattern_t michelle;
+
 font_t proggyFont;
 displayable_t *displayList[LISTCAPACITY];
 uint8_t listSize;
@@ -229,6 +234,15 @@ void removeDisplayable(uint8_t id) {
 	}
 }
 
+/* Enable or disable a displayable. It remains in the display list but doesn't draw. */
+void changeVisibility(uint8_t id, bool visible) {
+	for (uint8_t i = 0; i < listSize; i++) {
+		if (id == displayList[i]->id) {
+			displayList[i]->visible = visible;
+		}
+	}
+}
+
 uint8_t getPongLine(const uint8_t row, const uint8_t col, const uint8_t paddle1_y, const uint8_t paddle2_y, const uint8_t ball_x, const uint8_t ball_y) {
 	uint8_t line = 0xff;
 
@@ -348,7 +362,15 @@ void i2cSlaveReceiveService(uint8_t receiveDataLength, uint8_t* receiveData)
 		draw();
 		break;
 	case DELETE_CMD:
-		removeDisplayable(((delete_cmd*) localBuffer)->id);
+		removeDisplayable(((id_cmd*) localBuffer)->id);
+		draw();
+		break;
+	case ENABLE_CMD:
+		changeVisibility(((id_cmd*) localBuffer)->id, true);
+		draw();
+		break;
+	case DISABLE_CMD:
+		changeVisibility(((id_cmd*) localBuffer)->id, false);
 		draw();
 		break;
 	case ADD_IMAGE_CMD:
