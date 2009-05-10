@@ -29,6 +29,7 @@ void i2cMasterSendDiag(u08 deviceAddr, u08 length, u08* data);
 void addMessage(uint8_t id, const char *message, int32_t rStart, int32_t rStep, int32_t rStop, int32_t cStart, int32_t cStep, int32_t cStop, bool loop); 
 void addImage(uint8_t id, const pattern_t* pat, int32_t rStart, int32_t rStep, int32_t rStop, int32_t cStart, int32_t cStep, int32_t cStop, bool loop);
 void changeVisibility(uint8_t id, bool visible);
+void exclusivelyShow(uint8_t id);
 void test(void);
 
 // local data buffer
@@ -57,7 +58,7 @@ pattern_t michelle;
 
 font_t proggyFont;
 displayable_t *displayList[LISTCAPACITY];
-pattern_t* patternList[5];
+pattern_t* patternList[TOTALPATTERNS];
 uint8_t listSize;
 
 // This points to the pattern we want to display.
@@ -125,7 +126,7 @@ void init(void) {
 	// Add all the patterns to the display list, but make them invisible.
 	for (int i = 0; i < 5; i++) {
 		p = patternList[i];
-		addImage(i, p, 0, 0, 0, p->cols, -1, -p->cols, true);
+		addImage(i, p, 0, 0, 0, 120, -1, -p->cols, true);
 		changeVisibility(i, false);
 	}
 }
@@ -188,7 +189,7 @@ void draw(void) {
 		PORTA = getCombinedLine(row, col);
 		_delay_ms(0.1);
 		PORTB = 0;
-		PORTA = 0xff;
+		//PORTA = 0xff;
 		_delay_ms(0.1);
 	}
 	for (uint8_t i = 8; i < 16; i++) {
@@ -198,7 +199,7 @@ void draw(void) {
 		PORTA = getCombinedLine(row, col);
 		_delay_ms(0.1);
 		PORTD = 0;
-		PORTA = 0xff;
+		//PORTA = 0xff;
 		_delay_ms(0.1);
 	}
 #else
@@ -210,7 +211,7 @@ void draw(void) {
 		PORTA = reversed(getCombinedLine(row, col));
 		_delay_ms(0.1);
 		PORTD = 0;
-		PORTA = 0xff;
+		//PORTA = 0xff;
 		_delay_ms(0.1);
 	}
 	for (uint8_t i = 8; i < 16; i++) {
@@ -220,7 +221,7 @@ void draw(void) {
 		PORTA = reversed(getCombinedLine(row, col));
 		_delay_ms(0.1);
 		PORTB = 0;
-		PORTA = 0xff;
+		//PORTA = 0xff;
 		_delay_ms(0.1);
 	}
 #endif				
@@ -267,7 +268,7 @@ void changeVisibility(uint8_t id, bool visible) {
 /* Make id visible and turn all others off. Good for switching between patterns. */
 void exclusivelyShow(uint8_t id) {
 	for (uint8_t i = 0; i < listSize; i++) {
-		if (id == displayList[i]->id) {
+		if (displayList[i]->id == id) {
 			displayList[i]->visible = true;
 		}
 		else {
@@ -282,7 +283,7 @@ uint8_t getPongLine(const uint8_t row, const uint8_t col, const uint8_t paddle1_
 	// special case for edge panels, draw paddle
 	if (col == 0 && paddle1_y >= row - 2 && paddle1_y <= row + 2)
 		line &= 0x7f;
-	if ((ID == 4 || ID == 19)  && paddle2_y >= row - 2 && paddle2_y <= row + 2)
+	if ((ID == 15 || ID == 30)  && paddle2_y >= row - 2 && paddle2_y <= row + 2)
 		line &= 0xfe;
 
 	if (ball_y == row && ball_y - col >= 0 && ball_y - col < 8)
@@ -428,23 +429,28 @@ void i2cSlaveReceiveService(uint8_t receiveDataLength, uint8_t* receiveData)
 		break;
 	case SHOW_CMD:
 		exclusivelyShow(((id_cmd*) localBuffer)->id);
+		updateOffsets();
 		draw();
 		break;
 	case ADD_MESSAGE_CMD:
 		am = (add_message_cmd*) localBuffer;
 		addMessage(am->id, am->message, am->rStart, am->rStep, am->rStop, am->cStart, am->cStep, am->cStop, am->loop); 
+		updateOffsets();
 		draw();
 		break;
 	case DELETE_CMD:
 		removeDisplayable(((id_cmd*) localBuffer)->id);
+		updateOffsets();
 		draw();
 		break;
 	case ENABLE_CMD:
 		changeVisibility(((id_cmd*) localBuffer)->id, true);
+		updateOffsets();
 		draw();
 		break;
 	case DISABLE_CMD:
 		changeVisibility(((id_cmd*) localBuffer)->id, false);
+		updateOffsets();
 		draw();
 		break;
 	case ADD_IMAGE_CMD:
@@ -452,6 +458,7 @@ void i2cSlaveReceiveService(uint8_t receiveDataLength, uint8_t* receiveData)
 		// only process valid pattern image ids
 		if (ai->imageID >= TOTALPATTERNS || ai->imageID < 0) break; 
 		addImage(ai->id, patternList[ai->imageID], ai->rStart, ai->rStep, ai->rStop, ai->cStart, ai->cStep, ai->cStop, ai->loop);
+		updateOffsets();
 		draw();
 		break;
 	case PONG_CMD:

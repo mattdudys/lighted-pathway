@@ -97,4 +97,4 @@ gps.o			: gps.c			gps.h			global.h
 $(TRG).o		: $(TRG).c						global.h
 
 flash:
-	avrdude -c stk500v2 -P /dev/serial/by-id/usb-Keyspan__a_division_of_InnoSys_Inc._Keyspan_USA-19H-if00-port0 -p m32 -U flash:w:$(TRG).hex:i 
+	avrdude -V -c stk500v2 -P /dev/serial/by-id/usb-Keyspan__a_division_of_InnoSys_Inc._Keyspan_USA-19H-if00-port0 -p m32 -U flash:w:$(TRG).hex:i 
