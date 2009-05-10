@@ -55,6 +55,7 @@ typedef struct {
 	uint8_t ball_y;
 } pong_cmd;
 
+#define SHOW_CMD 's'
 #define TEST_CMD 't'
 
 int split(char *bufToParse, unsigned int bufLength, char** argv, int maxArgs) {

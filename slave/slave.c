@@ -264,6 +264,18 @@ void changeVisibility(uint8_t id, bool visible) {
 	}
 }
 
+/* Make id visible and turn all others off. Good for switching between patterns. */
+void exclusivelyShow(uint8_t id) {
+	for (uint8_t i = 0; i < listSize; i++) {
+		if (id == displayList[i]->id) {
+			displayList[i]->visible = true;
+		}
+		else {
+			displayList[i]->visible = false;
+		}
+	}
+}
+
 uint8_t getPongLine(const uint8_t row, const uint8_t col, const uint8_t paddle1_y, const uint8_t paddle2_y, const uint8_t ball_x, const uint8_t ball_y) {
 	uint8_t line = 0xff;
 
@@ -412,6 +424,10 @@ void i2cSlaveReceiveService(uint8_t receiveDataLength, uint8_t* receiveData)
 	case FRAME_CMD:
 		frame = ((frame_cmd*) localBuffer)->frame;
 		updateOffsets();
+		draw();
+		break;
+	case SHOW_CMD:
+		exclusivelyShow(((id_cmd*) localBuffer)->id);
 		draw();
 		break;
 	case ADD_MESSAGE_CMD:
