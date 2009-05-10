@@ -137,10 +137,16 @@ void commands() {
 				i.cmd_id = ENABLE_CMD;
 				i.id = atoi(localBuffer[2]);
 				i2cMasterSend(TARGET_ADDR, sizeof(i), (u08*) &i);
+				break;
 			case DISABLE_CMD:
 				i.cmd_id = DISABLE_CMD;
 				i.id = atoi(localBuffer[2]);
 				i2cMasterSend(TARGET_ADDR, sizeof(i), (u08*) &i);
+				break;
+			case TEST_CMD:
+				i.cmd_id = TEST_CMD;
+				i2cMasterSend(TARGET_ADDR, sizeof(i), (u08*) &i);
+				break;
 			default:
 				rprintf("Unknown Command %c", command);
 				break;
