@@ -55,6 +55,7 @@ typedef struct {
 	uint8_t ball_y;
 } pong_cmd;
 
+#define TEST_CMD 't'
 
 int split(char *bufToParse, unsigned int bufLength, char** argv, int maxArgs) {
 	// Don't try to parse commands that are too short.

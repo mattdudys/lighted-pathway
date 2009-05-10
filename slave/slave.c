@@ -28,6 +28,8 @@ uint8_t i2cSlaveTransmitService(u08 transmitDataLengthMax, u08* transmitData);
 void i2cMasterSendDiag(u08 deviceAddr, u08 length, u08* data);
 void addMessage(uint8_t id, const char *message, int32_t rStart, int32_t rStep, int32_t rStop, int32_t cStart, int32_t cStep, int32_t cStop, bool loop); 
 void addImage(uint8_t id, const pattern_t* pat, int32_t rStart, int32_t rStep, int32_t rStop, int32_t cStart, int32_t cStep, int32_t cStop, bool loop);
+void changeVisibility(uint8_t id, bool visible);
+void test(void);
 
 // local data buffer
 char *localBuffer;
@@ -43,6 +45,7 @@ uint8_t localBufferLength = 0xff;
 #define ROWOFFSET ROW * BOARDROWS
 #define COLOFFSET COL * BOARDCOLS
 #define LISTCAPACITY 8
+#define TOTALPATTERNS 5
 
 pattern_t asme;
 pattern_t proggy;
@@ -54,6 +57,7 @@ pattern_t michelle;
 
 font_t proggyFont;
 displayable_t *displayList[LISTCAPACITY];
+pattern_t* patternList[5];
 uint8_t listSize;
 
 // This points to the pattern we want to display.
@@ -104,10 +108,26 @@ void init(void) {
 	initPattern(&asme, 16, 32, ASME);
 	initPattern(&proggy, 22, 1144, PROGGY);
 	initPattern(&ucmerced, 32, 192, UCMERCED);
+	initPattern(&soe, 32, 120, SOE);
+	initPattern(&ns, 32, 120, NS);
+	initPattern(&ssha, 32, 120, SSHA);
+	initPattern(&michelle, 32, 120, MICHELLE);
 	initFont(&proggyFont, 12, &proggy);
 	listSize = 0;
 
-	addImage(0, &ucmerced, 0, 0, 0, 32, -1, -192, true);
+	// Pattern list contains all the patterns on the chip. Add image uses this to look up pattern memory locations.
+	patternList[0] = &ucmerced;
+	patternList[1] = &soe;
+	patternList[2] = &ns;
+	patternList[3] = &ssha;
+	patternList[4] = &michelle;
+	pattern_t* p;
+	// Add all the patterns to the display list, but make them invisible.
+	for (int i = 0; i < 5; i++) {
+		p = patternList[i];
+		addImage(i, p, 0, 0, 0, p->cols, -1, -p->cols, true);
+		changeVisibility(i, false);
+	}
 }
 
 void clear(void) {
@@ -333,6 +353,43 @@ int main(void) {
 	}
 }
 
+/* Test pattern */
+void test(void) {
+	for (int i = 0; i < 5; i++) {
+		for (int column = 0; column < 16; column++) {
+			clear();
+			if (column < 8)	{
+				PORTB = 0x01 << column;
+				PORTD = 0x00;
+			}
+			else {
+				PORTD = 0x01 << (column - 8);
+				PORTB = 0x00;
+			}
+			PORTA = 0x00;
+			_delay_ms(50);
+		}
+	}
+	for(int i = 0; i < 5; i++) {
+		for(int j = 0; j < 8; j++) {
+			clear();
+			for (int column = 0; column < 16; column++) {
+				if (column < 8)	{
+					PORTB = 0x01<<column;
+					PORTD = 0x00;
+				}
+				else {
+					PORTD = 0x01 << (column - 8);
+					PORTB = 0x00;
+				}
+				PORTA = ~(0x01 << j);
+				_delay_ms(1);
+			}
+			_delay_ms(200);
+		}
+	}
+	clear();
+}
 
 // slave operations
 void i2cSlaveReceiveService(uint8_t receiveDataLength, uint8_t* receiveData)
@@ -376,12 +433,17 @@ void i2cSlaveReceiveService(uint8_t receiveDataLength, uint8_t* receiveData)
 		break;
 	case ADD_IMAGE_CMD:
 		ai = (add_image_cmd*) localBuffer;
-		addImage(ai->id, &ucmerced, ai->rStart, ai->rStep, ai->rStop, ai->cStart, ai->cStep, ai->cStop, ai->loop);
+		// only process valid pattern image ids
+		if (ai->imageID >= TOTALPATTERNS || ai->imageID < 0) break; 
+		addImage(ai->id, patternList[ai->imageID], ai->rStart, ai->rStep, ai->rStop, ai->cStart, ai->cStep, ai->cStop, ai->loop);
 		draw();
 		break;
 	case PONG_CMD:
 		p = (pong_cmd*) localBuffer;
 		drawPong(p->paddle1_y, p->paddle2_y, p->ball_x, p->ball_y);
+		break;
+	case TEST_CMD:
+		test();
 		break;
 	default:
 		PORTB = 0x00;
