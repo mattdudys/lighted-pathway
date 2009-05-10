@@ -149,6 +149,7 @@ uint8_t getCombinedLine(int32_t row, int32_t col) {
 	uint8_t line = 0xff;
 	uint8_t temp;
 	for (uint8_t d = 0; d < listSize; d++) {
+		if (!displayList[d]->visible) continue;
 		temp = getDisplayableLine(displayList[d], row, col);
 		if (displayList[d]->invert) temp = ~temp;
 		line &= (uint8_t) temp;
