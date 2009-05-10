@@ -83,7 +83,7 @@ void commands() {
 		//process
 		frame_cmd f;
 		add_message_cmd msg;
-		add_image_cmd ima;
+		add_image_cmd img;
 		id_cmd i;
 		rprintf("%s",localBuffer);
 		switch(command){
