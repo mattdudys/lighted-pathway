@@ -45,16 +45,22 @@ uint8_t localBufferLength = 0xff;
 #define COL (ID-1) % 15
 #define ROWOFFSET ROW * BOARDROWS
 #define COLOFFSET COL * BOARDCOLS
-#define LISTCAPACITY 8
-#define TOTALPATTERNS 5
+#define LISTCAPACITY 16 
+#define TOTALPATTERNS 13
 
-pattern_t asme;
+pattern_t commencement;
+pattern_t congrats;
+pattern_t dearmichelle;
+pattern_t gobobcats;
+pattern_t hperror;
+pattern_t ns;
 pattern_t proggy;
-pattern_t ucmerced;
 pattern_t soe;
 pattern_t ssha;
-pattern_t ns;
-pattern_t michelle;
+pattern_t ucmerced;
+pattern_t ucmlogo;
+pattern_t welcomemichelle;
+pattern_t welcome;
 
 font_t proggyFont;
 displayable_t *displayList[LISTCAPACITY];
@@ -106,25 +112,39 @@ void init(void) {
 	localBuffer = (char*) malloc(256 * sizeof(char));
 
 	// Init patterns and fonts.
-	initPattern(&asme, 16, 32, ASME);
-	initPattern(&proggy, 22, 1144, PROGGY);
-	initPattern(&ucmerced, 32, 192, UCMERCED);
-	initPattern(&soe, 32, 120, SOE);
+	// Pattern list contains all the patterns on the chip. Add image uses this to look up pattern memory locations.
+	initPattern(&commencement, 32, 120, COMMENCEMENT);
+	patternList[0] = &commencement;
+	initPattern(&congrats, 32, 120, CONGRATS);
+	patternList[1] = &congrats;
+	initPattern(&dearmichelle, 32, 120, DEARMICHELLE);
+	patternList[2] = &dearmichelle;
+	initPattern(&gobobcats, 32, 120, GOBOBCATS);
+	patternList[3] = &gobobcats;
 	initPattern(&ns, 32, 120, NS);
+	patternList[4] = &ns;
+	initPattern(&soe, 32, 120, SOE);
+	patternList[5] = &soe;
 	initPattern(&ssha, 32, 120, SSHA);
-	initPattern(&michelle, 32, 120, MICHELLE);
+	patternList[6] = &ssha;
+	initPattern(&ucmlogo, 32, 120, UCMLOGO);
+	patternList[7] = &ucmlogo;
+	initPattern(&welcome, 32, 120, WELCOME);
+	patternList[8] = &welcome;
+	initPattern(&welcomemichelle, 32, 120, WELCOMEMICHELLE);
+	patternList[9] = &welcomemichelle;
+	initPattern(&ucmerced, 32, 192, UCMERCED);
+	patternList[10] = &ucmerced;
+	initPattern(&proggy, 22, 1144, PROGGY);
+	patternList[11] = &proggy;
+	initPattern(&hperror, 32, 392, HPERROR);
+	patternList[12] = &hperror;
 	initFont(&proggyFont, 12, &proggy);
 	listSize = 0;
 
-	// Pattern list contains all the patterns on the chip. Add image uses this to look up pattern memory locations.
-	patternList[0] = &ucmerced;
-	patternList[1] = &soe;
-	patternList[2] = &ns;
-	patternList[3] = &ssha;
-	patternList[4] = &michelle;
 	pattern_t* p;
 	// Add all the patterns to the display list, but make them invisible.
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 10; i++) {
 		p = patternList[i];
 		addImage(i, p, 0, 0, 0, 120, -1, -p->cols, true);
 		changeVisibility(i, false);
