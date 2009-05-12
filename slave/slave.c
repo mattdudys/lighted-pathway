@@ -160,6 +160,15 @@ void clear(void) {
 	PORTB = 0x00;
 }
 
+void allOn(void) {
+	PORTA = 0x00;
+	PORTD = 0xff;
+	PORTB = 0xff;
+	_delay_ms(15);
+	PORTD = 0x00;
+	PORTB = 0x00;
+}
+
 /* Should be called after setting frame. Calculates row and col offsets based on frame number. */
 void updateOffsets(void) {
 	// use frame to calculate offsets for all patterns in the display list.
@@ -388,6 +397,11 @@ int main(void) {
 
 /* Test pattern */
 void test(void) {
+	// turn all lights on - 10s
+	allOn();
+	_delay_ms(10000);
+	clear();
+	// cycle through a test pattern
 	for (int i = 0; i < 5; i++) {
 		for (int column = 0; column < 16; column++) {
 			clear();
@@ -421,6 +435,9 @@ void test(void) {
 			_delay_ms(200);
 		}
 	}
+	// turn all on again - 10s
+	allOn();
+	_delay_ms(10000);
 	clear();
 }
 
